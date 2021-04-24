@@ -32,4 +32,6 @@ function fun2(fullName,cb){
 }
 
 fun2("Himanshu Sharma",getFirstname);
-fun2("Yash Varshney",getLastname)
+fun2("Yash Varshney",getLastname);
+
+//call back function's biggest application is it is used to implement async functions.
