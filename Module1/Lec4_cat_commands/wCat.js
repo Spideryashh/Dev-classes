@@ -1,39 +1,48 @@
-let content = process.argv.slice(2);
-let fs = require("fs");
+const { getFilesData, applySFlag, applyBFlag, applyNFlag } = require("./util");
+let contents = process.argv.slice(2);
+// console.log(contents);
 
-let flags = [];
-let files = [];
-for( let i=0;i<content.length;i++){
-    if(content[i].startsWith('-')){
-        flags.push(content[i]);
-    }
-    else{
-        files.push(content[i]);
-    }
-}
-// console.log(flags);
-// console.log(files);
+const flags = [];
+const files = [];
 
-//for files output
-let fileKaData = "";
-for(let i=0;i<files.length;i++){
-    fileKaData += fs.readFileSync(files[i]);
-    fileKaData += "\r\n";
+for (let i = 0; i < contents.length; i++) {
+  if (contents[i].startsWith("-")) {
+    flags.push(contents[i]);
+  } else {
+    files.push(contents[i]);
+  }
 }
-// console.log(fileKaData);
+// -s -b -n
+// f1.txt // f2.txt
 
-// -n => add count to all lines.
-function addLineNumberToAllLines(data){
-    for(let i-1;i<data.length+1;i++){
-        data[i-1]=`${i}. ${data[i-1]}`;
-    } 
-    let addedLineNumber = data.join("/n");
-    console.log(addedLineNumber);
-}
-addLineNumberToAllLines(data);
+let filesData = getFilesData(files);
 
-// -b => add count to lines containing some string
-let count=1;
-function addedLineNumberToEmptyLines(data){
-    
+if (flags.includes("-s")) {
+  // filesData updated if s flag is present !
+  filesData = applySFlag(filesData);
 }
+
+// console.log(filesData);
+
+// when both -b and -n flags are present
+if (flags.includes("-b") && flags.includes("-n")) {
+  if (flags.indexOf("-b") < flags.indexOf("-n")) {
+    // apply b flag
+    filesData = applyBFlag(filesData);
+  } else {
+    // apply n flag
+    filesData = applyNFlag(filesData);
+  }
+}
+// only -b flag is present
+else if (flags.includes("-b")) {
+  // apply b flag
+  filesData = applyBFlag(filesData);
+}
+// only -n flag is present
+else if (flags.includes("-n")) {
+  // apply n flag
+  filesData = applyNFlag(filesData);
+}
+
+console.log(filesData);
