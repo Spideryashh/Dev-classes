@@ -34,10 +34,10 @@ function gethHighestSixes(data){
         //loop for iterating over rows data 
         for(let j=0;j<allTrs.length;j++){
             let allTds = myDocument(allTrs[j]).find("td");
-            if(allTds.length>1){
+            if(allTds.length>1){ //this condition is for printing valid batsman row as bowlers td is also given but only 1 td (name ) is given
                 // inside valide tr
 
-                //condition for printing required colm result when we are at first row ,which things to be printed
+                //condition for printing required colm result when we visit first time in table ,which things to be printed
                 if(i==0 && j==0){
                     batsmanName = myDocument(allTds[0]).text();
                     highestSixes = myDocument(allTds[6]).text();
