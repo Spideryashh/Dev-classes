@@ -3,9 +3,9 @@ const puppeteer = require("puppeteer");
 // puppeteer has promisified functions
 // by default headless = true ,we put it false to see opened browser
 
-let browserOpenPromise = puppeteer.launch({headless: false});
+let browserOpenPromise = puppeteer.launch({headless: false,defaultViewport: null,args: ["--start-maximized"]});
 console.log(browserOpenPromise);
-// promise<pending>
+
 browserOpenPromise.then(function(browser){
     console.log("browser is opened !");
     return browser.pages();
