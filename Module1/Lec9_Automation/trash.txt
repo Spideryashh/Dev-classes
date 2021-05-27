@@ -1,0 +1,16 @@
+[--->wait and click function]
+// .then(function(){
+//     return tab.waitForSelector('#base-card-1-link' , {visible:true});
+// })
+// .then(function(){
+//     return tab.click("#base-card-1-link");
+// })
+// .then(function(){
+//     return tab.waitForSelector('a[data-attr1="warmup"]' , {visible:true});
+// })
+// .then(function(){
+//     return tab.click("a[data-attr1='warmup']");
+// })
+// .then(function(){
+//     console.log("clicked on warm up challanges")
+// })
