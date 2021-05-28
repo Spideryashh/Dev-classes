@@ -57,10 +57,16 @@ browserOpenPromise.then(function(browser){
 })
 .then(function(allQuesLinks){
     let oneQuesSolvePromise = solveQuestion(allQuesLinks[0]);
+    for(let i=1;i<allQuesLinks.length;i++){
+        oneQuesSolvePromise = oneQuesSolvePromise.then(function(){
+            let nextQuesSolvePromise = solveQuestion(allQuesLinks[i]);
+            return nextQuesSolvePromise;
+        })
+    }
     return oneQuesSolvePromise;
 })
 .then(function(){
-    console.log("first ques solved sucessfully.")
+    console.log("All  ques solved sucessfully.")
 })
 
 .catch(function(err){
@@ -147,12 +153,37 @@ function pasteCode(){
     })
 }
 
+function handleLockButton(){
+    return new Promise(function(scb , fcb){
+      let waitForLockBtn = tab.waitForSelector('.ui-btn.ui-btn-normal.ui-btn-primary.ui-btn-styled' , {visible:true , timeout:5000});
+      waitForLockBtn.then(function(){
+        return tab.$('.ui-btn.ui-btn-normal.ui-btn-primary.ui-btn-styled');
+      })
+      .then(function(lockButton){
+        return tab.evaluate(function(elem){ return elem.click()  } , lockButton);
+      })
+      .then(function(){
+        // Lock Button Found !!
+        console.log("Lock Button Found !!");
+        scb();
+      })
+      .catch(function(){
+        // Lock Button Not Found !!
+        console.log("Lock Button not found !!");
+        scb();
+      })
+    })
+  }
+
 function solveQuestion(quesLink){
 
     return new Promise(function(scb,fcb){
         let gotoPromise = tab.goto("https://www.hackerrank.com"+quesLink);
         gotoPromise.then(function(){
             return waitAndClick('div[data-attr2="Editorial"]')
+        })
+        .then(function(){
+            return handleLockButton();
         })
         .then(function(){
             return getCode();
@@ -180,7 +211,8 @@ function solveQuestion(quesLink){
 function waitAndClick(selector){
     return new Promise(function(scb,fcb){
         let waitPromise = tab.waitForSelector(selector , {visible: true});
-        waitPromise.then(function(){
+        waitPromise
+        .then(function(){
             return tab.click(selector);    
     })
     .then(function(){
@@ -188,7 +220,7 @@ function waitAndClick(selector){
     })
     .catch(function(){
         fcb();
-    })
+    });
     });
 }
   
