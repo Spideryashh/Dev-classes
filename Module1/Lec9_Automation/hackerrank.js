@@ -2,12 +2,14 @@ const puppeteer = require("puppeteer");
 const id = "labivos809@sc2hub.com"
 const pswd = "87654321"
 let tab;
+let idx;
+let gCode;
 
 let browserOpenPromise = puppeteer.launch({headless: false,defaultViewport: null,args: ["--start-maximized"]});
 console.log(browserOpenPromise);
 
 browserOpenPromise.then(function(browser){
-    console.log("browser is opened !");
+    console.log("browser is opened !\n");
     return browser.pages();
 })
 .then(function(pages){
@@ -44,24 +46,136 @@ browserOpenPromise.then(function(browser){
     let allPendingPromises = [];
     for(let i=0;i<allQuesArray.length;i++){
         let oneATag = allQuesArray[i];
-        let pendingPromise = oneATag.evaluate(function(element){  //evaluate runs the function in dom 
-            return element.getAttribute("href");
-        },oneATag);
+        let pendingPromise = oneATag.evaluate(function(element){  return element.getAttribute("href");},oneATag);
         allPendingPromises.push(pendingPromise);
     }
     // [ promise<pending> , promise<pending , promise<pending> , promise<pending>]
-    console.log(allPendingPromises);
-    let allCombinedPromises = Promise.all(allPendingPromises);
+    // console.log(allPendingPromises);
+    let allPromisesCombined = Promise.all(allPendingPromises);
     //promise<pending>
-    return allCombinedPromises;
+    return allPromisesCombined;
 })
 .then(function(allQuesLinks){
-    console.log(allQuesLinks);
+    let oneQuesSolvePromise = solveQuestion(allQuesLinks[0]);
+    return oneQuesSolvePromise;
+})
+.then(function(){
+    console.log("first ques solved sucessfully.")
 })
 
 .catch(function(err){
     console.log(err);
-})
+});
+
+function getCode(){
+    return new Promise(function(scb,fcb){
+        let waitPromise = tab.waitForSelector(".hackdown-content h3",{visible:true});
+        waitPromise.then(function(){
+            return tab.$$(".hackdown-content h3");
+        })
+        .then(function(allCodeNamesElement){
+            // [<h3>C++</h3> , <h3>Python</h3> , <h3>Java</h3>]
+            let allCodeNamesPromise = [];
+
+            for(let i=0;i<allCodeNamesElement.length;i++){
+                let codeNamePromise = tab.evaluate(function(elem){ return elem.textContent;} , allCodeNamesElement[i] );
+                allCodeNamesPromise.push(codeNamePromise);
+            }
+            // allCodeNamesPromise = [Promise<pending> , Promise<pending> ,Promise<pending>];
+            let combinedPromise = Promise.all(allCodeNamesPromise);
+            // Promise<pending> => Promise[data,data,data]
+            return combinedPromise;
+        })
+        .then(function(allCodeNames){
+            //[c++,Python,java]
+            for(let i=0;i<allCodeNames.length;i++){
+                if(allCodeNames[i] == "C++"){
+                    idx = i;
+                    break;
+                }
+            }
+            return tab.$$(".hackdown-content .highlight"); //document.querySelectorAll
+        })
+        .then(function(allCodeDiv){
+            // [<div></div , <div></div , <div></div];
+            let codeDiv = allCodeDiv[idx];
+            return tab.evaluate(function(elem){ return elem.textContent; } ,codeDiv);
+        })
+        .then(function(code){
+            gCode = code;
+            scb();
+        })
+        .catch(function(error){
+            fcb(error);
+        })
+    })
+}
+
+function pasteCode(){
+    return new Promise(function(scb,fcb){
+        let waitAndClickPromise = waitAndClick('.checkbox-input');
+        waitAndClickPromise.then(function(){
+            return tab.waitForTimeout(2000);
+        })
+        .then(function(){
+            return tab.type('.custominput',gCode);
+        })
+        .then(function(){
+            return tab.keyboard.down("Control");
+        })
+        .then(function(){
+            return tab.keyboard.press("A");
+        })
+        .then(function(){
+            return tab.keyboard.press("X");
+        })
+        .then(function(){
+            return tab.click('.monaco-scrollable-element.editor-scrollable.vs');
+        })
+        .then(function(){
+            return tab.keyboard.press("A");
+        })
+        .then(function(){
+            return tab.keyboard.press("V");
+        })
+        .then(function(){
+            return tab.keyboard.up("Control");
+        })
+        .then(function(){
+            scb();
+        })
+    })
+}
+
+function solveQuestion(quesLink){
+
+    return new Promise(function(scb,fcb){
+        let gotoPromise = tab.goto("https://www.hackerrank.com"+quesLink);
+        gotoPromise.then(function(){
+            return waitAndClick('div[data-attr2="Editorial"]')
+        })
+        .then(function(){
+            return getCode();
+        })
+        .then(function(){
+            // console.log("Get C++ code sucessfully");
+            // console.log(gCode);
+            return tab.click('div[data-attr2="Problem"]')
+        })
+        .then(function(){
+            return pasteCode();
+        })
+        .then(function(){
+            return tab.click('.ui-btn.ui-btn-normal.ui-btn-primary');
+        })
+        .then(function(){
+            scb();
+        })
+        .catch(function(error){
+            fcb(error);
+        })
+    });
+}
 
 function waitAndClick(selector){
     return new Promise(function(scb,fcb){
@@ -77,5 +191,4 @@ function waitAndClick(selector){
     })
     });
 }
-
-//js-track-click challenge-list-item
+  
