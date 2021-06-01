@@ -1,35 +1,42 @@
 const puppeteer = require("puppeteer");
 const id = "labivos809@sc2hub.com";
-const pswd = "87654321";
+const pw = "87654321";
 let challenges = require("./challenges");
 
 async function login(){
     let browser = await puppeteer.launch({
-        headless : false ,
-        defaultViewport : null ,
-        args: ['--start-maximized'],
-     });
-
+        headless: false,
+        defaultViewport: null,
+        args: ["--start-maximized"],
+        slowMo : 200
+      });
     let pages = await browser.pages();
     let tab = pages[0];
     await tab.goto("https://www.hackerrank.com/auth/login");
-    await tab.type('#input-1',id);
-    await tab.type('#input-2',pswd);
-    await tab.click(".ui-btn.ui-btn-large.ui-btn-primary.auth-button.ui-btn-styled");
-    console.log("logged in !");
-    await tab.waitForSelector(".ui-icon-chevron-down.down-icon",{visible:true});
-    await tab.click(".ui-icon-chevron-down.down-icon")
-    await tab.waitForSelector("a[data-analytics='NavBarProfileDropDownAdministration']",{visible:true});
-    await tab.click("a[data-analytics='NavBarProfileDropDownAdministration']");
-    await tab.waitForSelector("a[href='/administration/challenges']",{visible:true});
-    await tab.click('a[href="/administration/challenges"]');
+    await tab.type("#input-1", id);
+    await tab.type("#input-2", pw);
+    await tab.click( ".ui-btn.ui-btn-large.ui-btn-primary.auth-button.ui-btn-styled");
+    await tab.waitForSelector('div[data-analytics="NavBarProfileDropDown"]' , {visible:true});
+    await tab.waitForTimeout(2000);
+    let element = await tab.$('div[data-analytics="NavBarProfileDropDown"]');
+    await element.click();
+    await tab.waitForSelector('a[data-analytics="NavBarProfileDropDownAdministration"]' , {visible:true});
+    await tab.click('a[data-analytics="NavBarProfileDropDownAdministration"]');
+    await tab.waitForSelector('.nav-tabs.nav.admin-tabbed-nav li' , {visible:true});
+    let bothLis = await tab.$$('.nav-tabs.nav.admin-tabbed-nav li');
+    let manageChallengeLi = bothLis[1];
+    await manageChallengeLi.click();
+    await tab.waitForSelector('.btn.btn-green.backbone.pull-right' , {visible:true});
     let createChallengeElement = await tab.$('.btn.btn-green.backbone.pull-right');
     let createChallengeLink = await tab.evaluate( function(elem){ return elem.getAttribute("href"); }   ,  createChallengeElement)
     createChallengeLink = "https://www.hackerrank.com"+createChallengeLink;
     // console.log(createChallengeLink);
+    
     for(let i=0 ; i<challenges.length ; i++){
         await addChallenges(browser , createChallengeLink , challenges[i]);
     }
+
+
 };
 login();
 
