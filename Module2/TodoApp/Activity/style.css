@@ -1,48 +1,69 @@
-*{
+* {
+    box-sizing: border-box;
+    margin: 0px;
+    padding: 0px;
 }
 
 body {
-    background-color: #e67e22;
-    display: block;
-    margin: 8px;
+    background-color: #9b59b6;
 }
 
-.todo-input-container{
-    padding: 35px;
-    /* background-color: grey; */
-    height: 74px;
-    
+.todo-input-container {
+    height: 100px;
+    /* background-color: black; */
+    padding: 20px;
 }
 
 .todo-input {
-    width: 98%;
-    height: 35%;
-    padding: 8px;
+    height: 70%;
+    width: 80%;
+    padding: 10px;
     outline: none;
     border: 0px;
-    border-radius: 8px;
-    font-size: 17px;
+    border-radius: 20px;
+    font-size: 20px;
     display: block;
     margin: auto;
-    margin-bottom: 18px;
+    margin-bottom: 20px;
 }
 
 .add-todo {
     display: block;
     margin: auto;
-    height: 50%;
-    width: 26%;
-    border-radius: 17px;
-    border: none;
-    background: #e74c3c;
-    color: yellow;
+    height: 75%;
+    width: 15%;
+    font-weight: bold;
+    border-radius: 10px;
+    border: 5px solid white;
+    color: white;
+    font-size: 20px;
+    background-color: #8e44ad;
 }
 
 .todos-list-container {
-    width: 63%;
+    padding: 10px;
+}
+
+.todo-item {
+    width: 60%;
     margin: auto;
-    background: blue;
-    margin-top: 80px;
-    
-    border-radius: 17px;
+    margin-top: 40px;
+    background-color: #8e44ad;
+    border-radius: 15px;
+    padding: 10px;
+    text-align: center;
+}
+
+.todo {
+    color: white;
+    font-size: 20px;
+    margin: auto;
+}
+
+.delete-todo {
+    background-color: #e74c3c;
+    color: white;
+    width: 70px;
+    height: 25px;
+    border: none;
 }
